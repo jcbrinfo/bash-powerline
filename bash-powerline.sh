@@ -89,9 +89,9 @@ __powerline() {
     readonly BG_CYAN="\[\e[46m\]"
     readonly BG_GREEN="\[\e[42m\]"
 
+    readonly RESET="\[$(tput sgr0)$(tput el)\]"
     readonly DIM="\[$(tput dim)\]"
     readonly REVERSE="\[$(tput rev)\]"
-    readonly RESET="\[$(tput sgr0)\]"
     readonly BOLD="\[$(tput bold)\]"
 
     # what OS?
@@ -137,8 +137,8 @@ __powerline() {
             local BG_EXIT="$BG_RED"
         fi
 
-        PS1="$BG_BASE1$FG_BASE3 \w $RESET"
-        PS1+="$BG_BLUE$FG_BASE3$(__git_info)$RESET"
+        PS1="$BG_BASE1$FG_BASE3 \w "
+        PS1+="$BG_BLUE$FG_BASE3$(__git_info)"
         PS1+="$BG_EXIT$FG_BASE3 $PS_SYMBOL $RESET "
     }
 
