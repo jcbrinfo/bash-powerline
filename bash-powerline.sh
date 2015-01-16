@@ -89,10 +89,7 @@ __powerline() {
 	readonly BG_CYAN="\[\e[46m\]"
 	readonly BG_GREEN="\[\e[42m\]"
 
-	readonly RESET="\[$(tput sgr0)$(tput el)\]"
-	readonly DIM="\[$(tput dim)\]"
-	readonly REVERSE="\[$(tput rev)\]"
-	readonly BOLD="\[$(tput bold)\]"
+	readonly POWERLINE_TERM_RESET_RENDITION="\[$(tput sgr0)$(tput el)\]"
 
 	# what OS?
 	case "$(uname)" in
@@ -106,7 +103,7 @@ __powerline() {
 			readonly PS_SYMBOL=$PS_SYMBOL_OTHER
 	esac
 
-	__git_info() { 
+	__git_info() {
 		[ -x "$(which git)" ] || return	# git not found
 
 		# get current branch name or short SHA1 hash for detached head
@@ -130,7 +127,7 @@ __powerline() {
 
 	ps1() {
 		# Check the exit code of the previous command and display different
-		# colors in the prompt accordingly. 
+		# colors in the prompt accordingly.
 		if [ $? -eq 0 ]; then
 			local BG_EXIT="$BG_GREEN"
 		else
@@ -139,7 +136,7 @@ __powerline() {
 
 		PS1="$BG_BASE1$FG_BASE3 \w "
 		PS1+="$BG_BLUE$FG_BASE3$(__git_info)"
-		PS1+="$BG_EXIT$FG_BASE3 $PS_SYMBOL $RESET "
+		PS1+="$BG_EXIT$FG_BASE3 $PS_SYMBOL $POWERLINE_TERM_RESET_RENDITION "
 	}
 
 	PROMPT_COMMAND=ps1
