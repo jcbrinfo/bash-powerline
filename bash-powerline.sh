@@ -119,11 +119,10 @@ __powerline() {
         [ -n "$(git status --porcelain)" ] && marks+=" $GIT_BRANCH_CHANGED_SYMBOL"
 
         # how many commits local branch is ahead/behind of remote?
-        local stat="$(git status --porcelain --branch | grep '^##' | grep -o '\[.\+\]$')"
-        local aheadN="$(echo $stat | grep -o 'ahead \d\+' | grep -o '\d\+')"
-        local behindN="$(echo $stat | grep -o 'behind \d\+' | grep -o '\d\+')"
-        [ -n "$aheadN" ] && marks+=" $GIT_NEED_PUSH_SYMBOL$aheadN"
-        [ -n "$behindN" ] && marks+=" $GIT_NEED_PULL_SYMBOL$behindN"
+        local aheadN="$(git rev-list @{u}.. | wc -l)"
+        local behindN="$(git rev-list ..@{u} | wc -l)"
+        [ "$aheadN" -ne "0" ] && marks+=" $GIT_NEED_PUSH_SYMBOL$aheadN"
+        [ "$behindN" -ne "0" ] && marks+=" $GIT_NEED_PULL_SYMBOL$behindN"
 
         # print the git branch segment without a trailing newline
         printf " $GIT_BRANCH_SYMBOL$branch$marks "
