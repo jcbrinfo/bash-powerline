@@ -1,9 +1,12 @@
-# bash-powerline
+# bash-powerline (JCBR Info’s fork)
 
 Powerline-style Bash prompt in pure Bash script.
 
+![bash-powerline screenshot](https://raw.github.com/jcbrinfo/bash-powerline/master/screenshots/solarized-light.png)
+
 This a fork of [riobard/bash-powerline](https://github.com/riobard/bash-powerline)
-that includes improvements from other forks.
+that includes many fixes to make the script more portable and improvements from
+other forks.
 
 ## Features
 
@@ -15,6 +18,8 @@ that includes improvements from other forks.
 * Status code for the previously failed command
 * Fast execution (no noticable delay)
 * No need for patched fonts
+* More portable than the original `bash-powerline` script : Works on 16-colors
+  terminals and does not rely on particular language settings.
 
 
 ## Installation
