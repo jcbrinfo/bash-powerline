@@ -5,8 +5,7 @@ Powerline-style Bash prompt in pure Bash script.
 ![bash-powerline screenshot](https://raw.github.com/jcbrinfo/bash-powerline/master/screenshots/solarized-light.png)
 
 This a fork of [riobard/bash-powerline](https://github.com/riobard/bash-powerline)
-that includes many fixes to make the script more portable and improvements from
-other forks.
+that includes many portability fixes and improvements.
 
 ## Features
 
