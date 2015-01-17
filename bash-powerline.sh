@@ -2,7 +2,27 @@
 
 __powerline() {
 
-	# Unicode symbols
+	############################################################################
+	# Compatibility settings
+
+	# Defines how to specify escape codes for colorization.
+	#
+	# Note: This script uses the 16-colors palette of the terminal. The “normal”
+	# (0-7) range is usualy works with any methods, contrary to the “bright”
+	# (8-15) range.
+	#
+	# Valid values:
+	#
+	# * `'aixterm'`: Use the aixterm’s escape codes explicitly. Recommended for
+	# the Gnome Terminal.
+	# * `'terminfo'` (default): Use `tput` to determine the escape codes to use
+	# Does not work with many terminals for the “bright” (8-15) range.
+	readonly POWERLINE_TERM_COLOR_ENCODING='terminfo'
+
+
+	############################################################################
+	# Symbols
+
 	readonly PS_SYMBOL_DARWIN=''
 	readonly PS_SYMBOL_LINUX='$'
 	readonly PS_SYMBOL_OTHER='%'
@@ -11,83 +31,124 @@ __powerline() {
 	readonly GIT_NEED_PUSH_SYMBOL='⇡'
 	readonly GIT_NEED_PULL_SYMBOL='⇣'
 
-	# Solarized colorscheme (tput 256 colors)
-	#
-	# Won’t work with gnome-terminal.
-	#readonly FG_BASE03="\[$(tput setaf 8)\]"
-	#readonly FG_BASE02="\[$(tput setaf 0)\]"
-	#readonly FG_BASE01="\[$(tput setaf 10)\]"
-	#readonly FG_BASE00="\[$(tput setaf 11)\]"
-	#readonly FG_BASE0="\[$(tput setaf 12)\]"
-	#readonly FG_BASE1="\[$(tput setaf 14)\]"
-	#readonly FG_BASE2="\[$(tput setaf 7)\]"
-	#readonly FG_BASE3="\[$(tput setaf 15)\]"
 
-	#readonly BG_BASE03="\[$(tput setab 8)\]"
-	#readonly BG_BASE02="\[$(tput setab 0)\]"
-	#readonly BG_BASE01="\[$(tput setab 10)\]"
-	#readonly BG_BASE00="\[$(tput setab 11)\]"
-	#readonly BG_BASE0="\[$(tput setab 12)\]"
-	#readonly BG_BASE1="\[$(tput setab 14)\]"
-	#readonly BG_BASE2="\[$(tput setab 7)\]"
-	#readonly BG_BASE3="\[$(tput setab 15)\]"
+	############################################################################
+	# Terminal’s escape codes for colorization
 
-	#readonly FG_YELLOW="\[$(tput setaf 3)\]"
-	#readonly FG_ORANGE="\[$(tput setaf 9)\]"
-	#readonly FG_RED="\[$(tput setaf 1)\]"
-	#readonly FG_MAGENTA="\[$(tput setaf 5)\]"
-	#readonly FG_VIOLET="\[$(tput setaf 13)\]"
-	#readonly FG_BLUE="\[$(tput setaf 4)\]"
-	#readonly FG_CYAN="\[$(tput setaf 6)\]"
-	#readonly FG_GREEN="\[$(tput setaf 2)\]"
+	##__fg_color {index}
+	# @param index The index of the color (0 to 15).
+	# @return The escape code (escaped for `$PS1`) that set the specified
+	# foreground color.
+	__fg_color() {
+		case "$POWERLINE_TERM_COLOR_ENCODING" in
+			aixterm)
+				if (($1 < 8)); then
+					echo -n '\[\e[3'"$1"'m\]'
+				else
+					echo -n "\[\e[9$(($1 - 8))m\]"
+				fi
+				;;
+			*)
+				echo -n "\[$(tput setaf $1)\]"
+				;;
+		esac
+	}
 
-	#readonly BG_YELLOW="\[$(tput setab 3)\]"
-	#readonly BG_ORANGE="\[$(tput setab 9)\]"
-	#readonly BG_RED="\[$(tput setab 1)\]"
-	#readonly BG_MAGENTA="\[$(tput setab 5)\]"
-	#readonly BG_VIOLET="\[$(tput setab 13)\]"
-	#readonly BG_BLUE="\[$(tput setab 4)\]"
-	#readonly BG_CYAN="\[$(tput setab 6)\]"
-	#readonly BG_GREEN="\[$(tput setab 2)\]"
+	##__bg_color {index}
+	# @param index The index of the color (0 to 15).
+	# @return The escape code (escaped for `$PS1`) that set the specified
+	# background color.
+	__bg_color() {
+		case "$POWERLINE_TERM_COLOR_ENCODING" in
+			aixterm)
+				if (($1 < 8)); then
+					echo -n '\[\e[4'"$1"'m\]'
+				else
+					echo -n "\[\e[10$(($1 - 8))m\]"
+				fi
+				;;
+			*)
+				echo -n "\[$(tput setab $1)\]"
+				;;
+		esac
+	}
 
-	# Solarized colorscheme (explicit AINSI codes)
-	#
-	# See: http://misc.flogisoft.com/bash/tip_colors_and_formatting
-	readonly FG_BASE03="\[\e[90m\]"
-	readonly FG_BASE02="\[\e[30m\]"
-	readonly FG_BASE01="\[\e[92m\]"
-	readonly FG_BASE00="\[\e[93m\]"
-	readonly FG_BASE0="\[\e[94m\]"
-	readonly FG_BASE1="\[\e[96m\]"
-	readonly FG_BASE2="\[\e[37m\]"
-	readonly FG_BASE3="\[\e[97m\]"
 
-	readonly BG_BASE03="\[\e[100m\]"
-	readonly BG_BASE02="\[\e[40m\]"
-	readonly BG_BASE01="\[\e[102m\]"
-	readonly BG_BASE00="\[\e[103m\]"
-	readonly BG_BASE0="\[\e[104m\]"
-	readonly BG_BASE1="\[\e[106m\]"
-	readonly BG_BASE2="\[\e[47m\]"
-	readonly BG_BASE3="\[\e[107m\]"
+	# ANSI color scheme
 
-	readonly FG_YELLOW="\[\e[33m\]"
-	readonly FG_ORANGE="\[\e[91m\]"
-	readonly FG_RED="\[\e[31m\]"
-	readonly FG_MAGENTA="\[\e[35m\]"
-	readonly FG_VIOLET="\[\e[95m\]"
-	readonly FG_BLUE="\[\e[34m\]"
-	readonly FG_CYAN="\[\e[36m\]"
-	readonly FG_GREEN="\[\e[32m\]"
+	readonly POWERLINE_FG_BLACK="$(__fg_color   0)"
+	readonly POWERLINE_FG_RED="$(__fg_color     1)"
+	readonly POWERLINE_FG_GREEN="$(__fg_color   2)"
+	readonly POWERLINE_FG_YELLOW="$(__fg_color  3)"
+	readonly POWERLINE_FG_BLUE="$(__fg_color    4)"
+	readonly POWERLINE_FG_MAGENTA="$(__fg_color 5)"
+	readonly POWERLINE_FG_CYAN="$(__fg_color    6)"
+	readonly POWERLINE_FG_WHITE="$(__fg_color   7)"	# Actually light gray
+	readonly POWERLINE_FG_BRIGHT_BLACK="$(__fg_color    8)"	# Actually dark gray
+	readonly POWERLINE_FG_BRIGHT_RED="$(__fg_color      9)"
+	readonly POWERLINE_FG_BRIGHT_GREEN="$(__fg_color   10)"
+	readonly POWERLINE_FG_BRIGHT_YELLOW="$(__fg_color  11)"
+	readonly POWERLINE_FG_BRIGHT_BLUE="$(__fg_color    12)"
+	readonly POWERLINE_FG_BRIGHT_MAGENTA="$(__fg_color 13)"
+	readonly POWERLINE_FG_BRIGHT_CYAN="$(__fg_color    14)"
+	readonly POWERLINE_FG_BRIGHT_WHITE="$(__fg_color   15)"
 
-	readonly BG_YELLOW="\[\e[43m\]"
-	readonly BG_ORANGE="\[\e[101m\]"
-	readonly BG_RED="\[\e[41m\]"
-	readonly BG_MAGENTA="\[\e[45m\]"
-	readonly BG_VIOLET="\[\e[105m\]"
-	readonly BG_BLUE="\[\e[44m\]"
-	readonly BG_CYAN="\[\e[46m\]"
-	readonly BG_GREEN="\[\e[42m\]"
+	readonly POWERLINE_BG_BLACK="$(__bg_color   0)"
+	readonly POWERLINE_BG_RED="$(__bg_color     1)"
+	readonly POWERLINE_BG_GREEN="$(__bg_color   2)"
+	readonly POWERLINE_BG_YELLOW="$(__bg_color  3)"
+	readonly POWERLINE_BG_BLUE="$(__bg_color    4)"
+	readonly POWERLINE_BG_MAGENTA="$(__bg_color 5)"
+	readonly POWERLINE_BG_CYAN="$(__bg_color    6)"
+	readonly POWERLINE_BG_WHITE="$(__bg_color   7)"	# Actually light gray
+	readonly POWERLINE_BG_BRIGHT_BLACK="$(__bg_color    8)"	# Actually dark gray
+	readonly POWERLINE_BG_BRIGHT_RED="$(__bg_color      9)"
+	readonly POWERLINE_BG_BRIGHT_GREEN="$(__bg_color   10)"
+	readonly POWERLINE_BG_BRIGHT_YELLOW="$(__bg_color  11)"
+	readonly POWERLINE_BG_BRIGHT_BLUE="$(__bg_color    12)"
+	readonly POWERLINE_BG_BRIGHT_MAGENTA="$(__bg_color 13)"
+	readonly POWERLINE_BG_BRIGHT_CYAN="$(__bg_color    14)"
+	readonly POWERLINE_BG_BRIGHT_WHITE="$(__bg_color   15)"
+
+
+	# Solarized color scheme
+
+	readonly POWERLINE_FG_BASE03="$(__fg_color  8)"
+	readonly POWERLINE_FG_BASE02="$(__fg_color  0)"
+	readonly POWERLINE_FG_BASE01="$(__fg_color 10)"
+	readonly POWERLINE_FG_BASE00="$(__fg_color 11)"
+	readonly POWERLINE_FG_BASE0="$(__fg_color  12)"
+	readonly POWERLINE_FG_BASE1="$(__fg_color  14)"
+	readonly POWERLINE_FG_BASE2="$(__fg_color   7)"
+	readonly POWERLINE_FG_BASE3="$(__fg_color  15)"
+
+	readonly POWERLINE_BG_BASE03="$(__bg_color  8)"
+	readonly POWERLINE_BG_BASE02="$(__bg_color  0)"
+	readonly POWERLINE_BG_BASE01="$(__bg_color 10)"
+	readonly POWERLINE_BG_BASE00="$(__bg_color 11)"
+	readonly POWERLINE_BG_BASE0="$(__bg_color  12)"
+	readonly POWERLINE_BG_BASE1="$(__bg_color  14)"
+	readonly POWERLINE_BG_BASE2="$(__bg_color   7)"
+	readonly POWERLINE_BG_BASE3="$(__bg_color  15)"
+
+	#readonly POWERLINE_FG_YELLOW -> See ANSI.
+	readonly POWERLINE_FG_ORANGE="$(__fg_color  9)"
+	#readonly POWERLINE_FG_RED -> See ANSI.
+	#readonly POWERLINE_FG_MAGENTA -> See ANSI.
+	readonly POWERLINE_FG_VIOLET="$(__fg_color 13)"
+	#readonly POWERLINE_FG_BLUE -> See ANSI.
+	#readonly POWERLINE_FG_CYAN -> See ANSI.
+	#readonly POWERLINE_FG_GREEN -> See ANSI.
+
+	#readonly POWERLINE_BG_YELLOW -> See ANSI.
+	readonly POWERLINE_BG_ORANGE="$(__bg_color  9)"
+	#readonly POWERLINE_BG_RED -> See ANSI.
+	#readonly POWERLINE_BG_MAGENTA -> See ANSI.
+	readonly POWERLINE_BG_VIOLET="$(__bg_color 13)"
+	#readonly POWERLINE_BG_BLUE -> See ANSI.
+	#readonly POWERLINE_BG_CYAN -> See ANSI.
+	#readonly POWERLINE_BG_GREEN -> See ANSI.
+
 
 	readonly POWERLINE_TERM_RESET_RENDITION="\[$(tput sgr0)$(tput el)\]"
 
@@ -129,14 +190,14 @@ __powerline() {
 		# Check the exit code of the previous command and display different
 		# colors in the prompt accordingly.
 		if [ $? -eq 0 ]; then
-			local BG_EXIT="$BG_GREEN"
+			local BG_EXIT="$POWERLINE_BG_GREEN"
 		else
-			local BG_EXIT="$BG_RED"
+			local BG_EXIT="$POWERLINE_BG_RED"
 		fi
 
-		PS1="$BG_BASE1$FG_BASE3 \w "
-		PS1+="$BG_BLUE$FG_BASE3$(__git_info)"
-		PS1+="$BG_EXIT$FG_BASE3 $PS_SYMBOL $POWERLINE_TERM_RESET_RENDITION "
+		PS1="$POWERLINE_BG_BASE1$POWERLINE_FG_BASE3 \w "
+		PS1+="$POWERLINE_BG_BLUE$POWERLINE_FG_BASE3$(__git_info)"
+		PS1+="$BG_EXIT$POWERLINE_FG_BASE3 $PS_SYMBOL $POWERLINE_TERM_RESET_RENDITION "
 	}
 
 	PROMPT_COMMAND=ps1

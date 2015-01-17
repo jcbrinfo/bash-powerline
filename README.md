@@ -36,6 +36,10 @@ colorscheme](https://github.com/altercation/solarized) for your terminal
 emulator. Or hack your own colorscheme by modifying the script. It's really
 easy.
 
+Note: Some colors may not appear as expected. In order to fix this, change the
+`POWERLINE_TERM_COLOR_ENCODING` constant of your `bash-powerline.sh` file. For
+details, see the comments in the script.
+
 
 ## Why?
 
