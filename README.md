@@ -19,6 +19,7 @@ that includes many portability fixes and improvements.
 * No need for patched fonts
 * More portable than the original `bash-powerline` script : Works on 16-colors
   terminals and does not rely on particular language settings.
+* Highly customizable.
 
 
 ## Installation

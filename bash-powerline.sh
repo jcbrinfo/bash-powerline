@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+# A Powerline Bash prompt.
+#
+# Available settings:
+#
+# * `POWERLINE_TERM_COLOR_ENCODING` (“Compatibility settings” section)
+# * `POWERLINE_SYMBOL_*` (“Symbols” section)
+# * `POWERLINE_LOOK_*` and `POWERLINE_SBAF_*` (“Segment look” section)
+# * `ps1`
 __powerline() {
 
 	############################################################################
@@ -22,6 +30,17 @@ __powerline() {
 
 	############################################################################
 	# Symbols
+
+	# The character at the end of a segment.
+	#
+	# Examples:
+	#
+	# * `'█ '`: “boxy” style
+	# * `' '`: The original Powerline style. As the orignal Powerline, this
+	#   require a patched font. See
+	# <https://powerline.readthedocs.org/en/latest/installation.html#fonts-installation>.
+	# * `'█▒ '`
+	readonly POWERLINE_SYMBOL_SEGMENT_END='█▚ '
 
 	readonly POWERLINE_SYMBOL_OS_DARWIN=''
 	readonly POWERLINE_SYMBOL_OS_LINUX='$'
@@ -171,17 +190,106 @@ __powerline() {
 
 
 	############################################################################
+	# Segment look
+	#
+	# The `POWERLINE_LOOK_*` constants specify escape codes to print before the
+	# content while the `POWERLINE_SBAF_` (“set background as foreground”)
+	# constants specify the escape code that sets the background of the
+	# corresponding segment as the foreground (needed to render divisions).
+	#
+	# You may use the constants defined in the “Terminal’s escape codes for
+	# colorization” and “Other escape codes” sections.
+
+	# Sets the default background as the foreground.
+	# Used to end the last segment.
+	readonly POWERLINE_SBAF_DEFAULT="$POWERLINE_FG_BASE3"
+
+	# __segment_failure
+	readonly POWERLINE_LOOK_FAILURE="$POWERLINE_BG_RED$POWERLINE_FG_BASE3"
+	readonly POWERLINE_SBAF_FAILURE="$POWERLINE_FG_RED"
+
+	# __segment_chroot
+	readonly POWERLINE_LOOK_CHROOT="$POWERLINE_BG_CYAN$POWERLINE_FG_BASE3"
+	readonly POWERLINE_SBAF_CHROOT="$POWERLINE_FG_CYAN"
+
+	# __segment_user (all)
+	readonly POWERLINE_LOOK_USER="$POWERLINE_FG_BASE3"
+	readonly POWERLINE_SBAF_USER=''
+
+	# __segment_user (non-root user)
+	# Combined with `POWERLINE_LOOK_USER` and `POWERLINE_SBAF_USER`.
+	readonly POWERLINE_LOOK_USER_NORMAL="$POWERLINE_BG_GREEN"
+	readonly POWERLINE_SBAF_USER_NORMAL="$POWERLINE_FG_GREEN"
+
+	# __segment_user (root user)
+	# Combined with `POWERLINE_LOOK_USER` and `POWERLINE_SBAF_USER`.
+	readonly POWERLINE_LOOK_USER_ROOT="$POWERLINE_BG_ORANGE"
+	readonly POWERLINE_SBAF_USER_ROOT="$POWERLINE_FG_ORANGE"
+
+	# __segment_prompt_os (all)
+	readonly POWERLINE_LOOK_PROMPT_OS="$POWERLINE_FG_BASE3"
+	readonly POWERLINE_SBAF_PROMPT_OS=''
+
+	# __segment_prompt_os (success)
+	# Combined with `POWERLINE_LOOK_PROMPT_OS` and `POWERLINE_SBAF_PROMPT_OS`.
+	readonly POWERLINE_LOOK_PROMPT_OS_OK="$POWERLINE_BG_GREEN"
+	readonly POWERLINE_SBAF_PROMPT_OS_OK="$POWERLINE_FG_GREEN"
+
+	# __segment_prompt_os (previous command failed)
+	# Combined with `POWERLINE_LOOK_PROMPT_OS` and `POWERLINE_SBAF_PROMPT_OS`.
+	readonly POWERLINE_LOOK_PROMPT_OS_FAILED="$POWERLINE_BG_RED"
+	readonly POWERLINE_SBAF_PROMPT_OS_FAILED="$POWERLINE_FG_RED"
+
+	# __segment_prompt_user (all)
+	readonly POWERLINE_LOOK_PROMPT_USER="$POWERLINE_FG_BASE3"
+	readonly POWERLINE_SBAF_PROMPT_USER=''
+
+	# __segment_prompt_user (non-root user)
+	# Combined with `POWERLINE_LOOK_USER` and `POWERLINE_SBAF_USER`.
+	readonly POWERLINE_LOOK_PROMPT_USER_NORMAL="$POWERLINE_BG_GREEN"
+	readonly POWERLINE_SBAF_PROMPT_USER_NORMAL="$POWERLINE_FG_GREEN"
+
+	# __segment_prompt_user (root user)
+	# Combined with `POWERLINE_LOOK_USER` and `POWERLINE_SBAF_USER`.
+	readonly POWERLINE_LOOK_PROMPT_USER_ROOT="$POWERLINE_BG_ORANGE"
+	readonly POWERLINE_SBAF_PROMPT_USER_ROOT="$POWERLINE_FG_ORANGE"
+
+	# __segment_pwd
+	readonly POWERLINE_LOOK_PWD="$POWERLINE_BG_BASE1$POWERLINE_FG_BASE3"
+	readonly POWERLINE_SBAF_PWD="$POWERLINE_FG_BASE1"
+
+	# __segment_git
+	readonly POWERLINE_LOOK_GIT="$POWERLINE_BG_BLUE$POWERLINE_FG_BASE3"
+	readonly POWERLINE_SBAF_GIT="$POWERLINE_FG_BLUE"
+
+
+	############################################################################
 	# Segments
 
-	## __segment_failure [exit_status]
+
+	## __end_previous_segment {bg_as_fg}
+	# End the previous segment.
+	#
+	# @param bg_as_fg The escape sequence to use to set the background of the
+	# next segmemt as the foreground.
+	__end_previous_segment() {
+		if [ -n "$PS1" ]; then
+			local symbol="$POWERLINE_SYMBOL_SEGMENT_END"
+		else
+			local symbol=" "
+		fi
+		echo -n "$POWERLINE_TERM_REVERSE_VIDEO$1$symbol$POWERLINE_TERM_SGR0"
+	}
+
+	## __segment_failure {exit_status}
 	# Prints the exit status code of the last run command if that command has
 	# failed.
 	#
 	# @param exit_status The exit status code of the last run command.
 	__segment_failure() {
 		[ "$1" -ne "0" ] \
-			&& echo -n "$POWERLINE_BG_RED$POWERLINE_FG_BASE3" \
-				"$POWERLINE_SYMBOL_FAILURE$1 "
+			&& __end_previous_segment "$POWERLINE_SBAF_FAILURE" \
+			&& echo -n "$POWERLINE_LOOK_FAILURE$POWERLINE_SYMBOL_FAILURE$1"
 	}
 
 
@@ -192,17 +300,22 @@ __powerline() {
 	# Debian-specific in the handling of this.
 	__segment_chroot() {
 		[ -n "$debian_chroot" ] \
-			&& echo -n "$POWERLINE_BG_CYAN$POWERLINE_FG_BASE3" \
-				"$POWERLINE_SYMBOL_CHROOT$debian_chroot "
+			&& __end_previous_segment "$POWERLINE_SBAF_CHROOT" \
+			&& echo -n "$POWERLINE_LOOK_CHROOT" \
+			&& echo -n "$POWERLINE_SYMBOL_CHROOT$debian_chroot"
 	}
 
 	## __segment_user
 	# Prints the user name and the hostname.
 	__segment_user() {
 		if [[ ${EUID} == 0 ]] ; then
-			echo -n "$POWERLINE_BG_ORANGE$POWERLINE_FG_BASE3 \h "
+			__end_previous_segment \
+					"$POWERLINE_SBAF_USER$POWERLINE_SBAF_USER_ROOT"
+			echo -n "$POWERLINE_LOOK_USER$POWERLINE_LOOK_USER_ROOT\h"
 		else
-			echo -n "$POWERLINE_BG_GREEN$POWERLINE_FG_BASE3 \u@\h "
+			__end_previous_segment \
+					"$POWERLINE_SBAF_USER$POWERLINE_SBAF_USER_NORMAL"
+			echo -n "$POWERLINE_LOOK_USER$POWERLINE_LOOK_USER_NORMAL\u@\h"
 		fi
 	}
 
@@ -223,12 +336,17 @@ __powerline() {
 			*)
 				local ps_symbol=$POWERLINE_SYMBOL_OS_OTHER
 		esac
+		local look="$POWERLINE_LOOK_PROMPT_OS"
+		local sbaf="$POWERLINE_SBAF_PROMPT_OS"
 		if [ "$1" -eq "0" ]; then
-			local bg_exit="$POWERLINE_BG_GREEN"
+			look+="$POWERLINE_LOOK_PROMPT_OS_OK"
+			sbaf+="$POWERLINE_SBAF_PROMPT_OS_OK"
 		else
-			local bg_exit="$POWERLINE_BG_RED"
+			look+="$POWERLINE_LOOK_PROMPT_OS_FAILED"
+			sbaf+="$POWERLINE_SBAF_PROMPT_OS_FAILED"
 		fi
-		echo -n "$bg_exit$POWERLINE_FG_BASE3 $ps_symbol "
+		__end_previous_segment "$sbaf"
+		echo -n "$look$ps_symbol"
 	}
 
 	## __segment_prompt_user
@@ -236,18 +354,24 @@ __powerline() {
 	#
 	# Prints `#` for `root` and `$` for the other users.
 	__segment_prompt_user() {
+		local look="$POWERLINE_LOOK_PROMPT_USER"
+		local sbaf="$POWERLINE_SBAF_PROMPT_USER"
 		if [[ ${EUID} == 0 ]] ; then
-			echo -n "$POWERLINE_BG_ORANGE$POWERLINE_FG_BASE3"
+			look+="$POWERLINE_LOOK_PROMPT_USER_ROOT"
+			sbaf+="$POWERLINE_SBAF_PROMPT_USER_ROOT"
 		else
-			echo -n "$POWERLINE_BG_GREEN$POWERLINE_FG_BASE3"
+			look+="$POWERLINE_LOOK_PROMPT_USER_NORMAL"
+			sbaf+="$POWERLINE_SBAF_PROMPT_USER_NORMAL"
 		fi
-		echo -n ' \$ '
+		__end_previous_segment "$sbaf"
+		echo -n "$look"'\$'
 	}
 
 	## __segment_pwd
 	# Prints the current working directory.
 	__segment_pwd() {
-		echo -n "$POWERLINE_BG_BASE1$POWERLINE_FG_BASE3 \w "
+		__end_previous_segment "$POWERLINE_SBAF_PWD"
+		echo -n "$POWERLINE_LOOK_PWD\w"
 	}
 
 	## __segment_git
@@ -258,7 +382,7 @@ __powerline() {
 		# Get current branch name or short SHA1 hash for detached head.
 		local branch="$(git symbolic-ref --short HEAD 2>/dev/null \
 				|| git describe --tags --always 2>/dev/null)"
-		[ -n "$branch" ] || return  # git branch not found
+		[ -n "$branch" ] || return	# git branch not found
 
 		local status="$POWERLINE_SYMBOL_BRANCH$branch"
 
@@ -273,19 +397,33 @@ __powerline() {
 		[ "$behindN" -ne "0" ] \
 			&& status+=" $POWERLINE_SYMBOL_COMMITS_BEHIND$behindN"
 
-		echo -n "$POWERLINE_BG_BLUE$POWERLINE_FG_BASE3 $status "
+		__end_previous_segment "$POWERLINE_SBAF_GIT"
+		echo -n "$POWERLINE_LOOK_GIT$status"
 	}
 
 
 	############################################################################
 	# Prompt building
 
+	## ps1
+	# Called by the shell to build the prompt.
 	ps1() {
 		local status=$?
 
-		PS1="$(__segment_failure $status)$(__segment_chroot)$(__segment_user)"
-		PS1+="$(__segment_pwd)$(__segment_git)$(__segment_prompt_user)"
-		PS1+="$POWERLINE_TERM_RESET_RENDITION "
+		# We MUST begin with an empty `PS1`.
+		PS1=""
+
+		# Insert segments here.
+		# Each segment MUST be inserted separately.
+		PS1+="$(__segment_failure "$status")"
+		PS1+="$(__segment_chroot)"
+		PS1+="$(__segment_user)"
+		PS1+="$(__segment_pwd)"
+		PS1+="$(__segment_git)"
+		PS1+="$(__segment_prompt_user)"
+
+		PS1+="$(__end_previous_segment "$POWERLINE_SBAF_DEFAULT")"
+		PS1+="$POWERLINE_TERM_RESET_RENDITION"
 	}
 
 	PROMPT_COMMAND=ps1
