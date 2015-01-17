@@ -23,13 +23,13 @@ __powerline() {
 	############################################################################
 	# Symbols
 
-	readonly PS_SYMBOL_DARWIN=''
-	readonly PS_SYMBOL_LINUX='$'
-	readonly PS_SYMBOL_OTHER='%'
-	readonly GIT_BRANCH_SYMBOL='⑂ '
-	readonly GIT_BRANCH_CHANGED_SYMBOL='+'
-	readonly GIT_NEED_PUSH_SYMBOL='⇡'
-	readonly GIT_NEED_PULL_SYMBOL='⇣'
+	readonly POWERLINE_SYMBOL_OS_DARWIN=''
+	readonly POWERLINE_SYMBOL_OS_LINUX='$'
+	readonly POWERLINE_SYMBOL_OS_OTHER='%'
+	readonly POWERLINE_SYMBOL_BRANCH='⑂ '
+	readonly POWERLINE_SYMBOL_DIRTY='+'
+	readonly POWERLINE_SYMBOL_COMMITS_AHEAD='⇡'
+	readonly POWERLINE_SYMBOL_COMMITS_BEHIND='⇣'
 
 
 	############################################################################
@@ -174,13 +174,13 @@ __powerline() {
 	# what OS?
 	case "$(uname)" in
 		Darwin)
-			readonly PS_SYMBOL=$PS_SYMBOL_DARWIN
+			readonly PS_SYMBOL=$POWERLINE_SYMBOL_OS_DARWIN
 			;;
 		Linux)
-			readonly PS_SYMBOL=$PS_SYMBOL_LINUX
+			readonly PS_SYMBOL=$POWERLINE_SYMBOL_OS_LINUX
 			;;
 		*)
-			readonly PS_SYMBOL=$PS_SYMBOL_OTHER
+			readonly PS_SYMBOL=$POWERLINE_SYMBOL_OS_OTHER
 	esac
 
 	__git_info() {
@@ -193,16 +193,16 @@ __powerline() {
 		local marks
 
 		# branch is modified?
-		[ -n "$(git status --porcelain)" ] && marks+=" $GIT_BRANCH_CHANGED_SYMBOL"
+		[ -n "$(git status --porcelain)" ] && marks+=" $POWERLINE_SYMBOL_DIRTY"
 
 		# how many commits local branch is ahead/behind of remote?
 		local aheadN="$(git rev-list @{u}.. | wc -l)"
 		local behindN="$(git rev-list ..@{u} | wc -l)"
-		[ "$aheadN" -ne "0" ] && marks+=" $GIT_NEED_PUSH_SYMBOL$aheadN"
-		[ "$behindN" -ne "0" ] && marks+=" $GIT_NEED_PULL_SYMBOL$behindN"
+		[ "$aheadN" -ne "0" ] && marks+=" $POWERLINE_SYMBOL_COMMITS_AHEAD$aheadN"
+		[ "$behindN" -ne "0" ] && marks+=" $POWERLINE_SYMBOL_COMMITS_BEHIND$behindN"
 
 		# print the git branch segment without a trailing newline
-		printf " $GIT_BRANCH_SYMBOL$branch$marks "
+		printf " $POWERLINE_SYMBOL_BRANCH$branch$marks "
 	}
 
 
