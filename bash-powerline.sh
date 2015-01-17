@@ -30,6 +30,7 @@ __powerline() {
 	readonly POWERLINE_SYMBOL_DIRTY='+'
 	readonly POWERLINE_SYMBOL_COMMITS_AHEAD='⇡'
 	readonly POWERLINE_SYMBOL_COMMITS_BEHIND='⇣'
+	readonly POWERLINE_SYMBOL_CHROOT='⦿ '
 
 
 	############################################################################
@@ -171,6 +172,27 @@ __powerline() {
 	############################################################################
 	# Segments
 
+	## __segment_chroot
+	# Prints the content of the `debian_chroot` variable.
+	#
+	# Note: The name `debian_chroot` is just a convention. There is nothing
+	# Debian-specific in the handling of this.
+	__segment_chroot() {
+		[ -n "$debian_chroot" ] \
+			&& echo -n "$POWERLINE_BG_CYAN$POWERLINE_FG_BASE3" \
+				"$POWERLINE_SYMBOL_CHROOT$debian_chroot "
+	}
+
+	## __segment_user
+	# Prints the user name and the hostname.
+	__segment_user() {
+		if [[ ${EUID} == 0 ]] ; then
+			echo -n "$POWERLINE_BG_ORANGE$POWERLINE_FG_BASE3 \h "
+		else
+			echo -n "$POWERLINE_BG_GREEN$POWERLINE_FG_BASE3 \u@\h "
+		fi
+	}
+
 	## __segment_prompt_os [status_code]
 	# Prints a different symbol depending on the operating system.
 	#
@@ -235,7 +257,8 @@ __powerline() {
 	ps1() {
 		local status=$?
 
-		PS1="$(__segment_pwd)$(__segment_git)$(__segment_prompt_os $status)"
+		PS1="$(__segment_chroot)$(__segment_user)"
+		PS1+="$(__segment_pwd)$(__segment_git)$(__segment_prompt_os $status)"
 		PS1+="$POWERLINE_TERM_RESET_RENDITION "
 	}
 
