@@ -160,6 +160,13 @@ __powerline() {
 	# is line-wrapped.
 	readonly POWERLINE_TERM_RESET_RENDITION="\[$(tput sgr0)$(tput el)\]"
 
+	# Some common graphic settings.
+	readonly POWERLINE_TERM_SGR0="\[$(tput sgr0)\]"	# Resets to default rendition.
+	readonly POWERLINE_TERM_BOLD="\[$(tput bold)\]"	# Bold or increased intensity.
+	readonly POWERLINE_TERM_UNDERLINE="\[$(tput smul)\]"
+	readonly POWERLINE_TERM_BLINK="\[$(tput blink)\]"
+	readonly POWERLINE_TERM_REVERSE_VIDEO="\[$(tput rev)\]"
+
 
 	############################################################################
 	# Segments
