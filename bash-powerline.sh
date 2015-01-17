@@ -171,38 +171,61 @@ __powerline() {
 	############################################################################
 	# Segments
 
-	# what OS?
-	case "$(uname)" in
-		Darwin)
-			readonly PS_SYMBOL=$POWERLINE_SYMBOL_OS_DARWIN
-			;;
-		Linux)
-			readonly PS_SYMBOL=$POWERLINE_SYMBOL_OS_LINUX
-			;;
-		*)
-			readonly PS_SYMBOL=$POWERLINE_SYMBOL_OS_OTHER
-	esac
+	## __segment_prompt_os [status_code]
+	# Prints a different symbol depending on the operating system.
+	#
+	# Use a different background color if the last run command failed.
+	#
+	# @param status_code The status code of the last run command.
+	__segment_prompt_os() {
+		case "$(uname)" in
+			Darwin)
+				local ps_symbol=$POWERLINE_SYMBOL_OS_DARWIN
+				;;
+			Linux)
+				local ps_symbol=$POWERLINE_SYMBOL_OS_LINUX
+				;;
+			*)
+				local ps_symbol=$POWERLINE_SYMBOL_OS_OTHER
+		esac
+		if [ $1 -eq 0 ]; then
+			local bg_exit="$POWERLINE_BG_GREEN"
+		else
+			local bg_exit="$POWERLINE_BG_RED"
+		fi
+		echo -n "$bg_exit$POWERLINE_FG_BASE3 $ps_symbol "
+	}
 
-	__git_info() {
+	## __segment_pwd
+	# Prints the current working directory.
+	__segment_pwd() {
+		echo -n "$POWERLINE_BG_BASE1$POWERLINE_FG_BASE3 \w "
+	}
+
+	## __segment_git
+	# Prints a summary of the Git repository status.
+	__segment_git() {
 		[ -x "$(which git)" ] || return	# git not found
 
-		# get current branch name or short SHA1 hash for detached head
-		local branch="$(git symbolic-ref --short HEAD 2>/dev/null || git describe --tags --always 2>/dev/null)"
+		# Get current branch name or short SHA1 hash for detached head.
+		local branch="$(git symbolic-ref --short HEAD 2>/dev/null \
+				|| git describe --tags --always 2>/dev/null)"
 		[ -n "$branch" ] || return  # git branch not found
 
-		local marks
+		local status="$POWERLINE_SYMBOL_BRANCH$branch"
 
-		# branch is modified?
-		[ -n "$(git status --porcelain)" ] && marks+=" $POWERLINE_SYMBOL_DIRTY"
+		# Do we have uncommited changes?
+		[ -n "$(git status --porcelain)" ] && status+=" $POWERLINE_SYMBOL_DIRTY"
 
-		# how many commits local branch is ahead/behind of remote?
+		# How many commits local branch is ahead/behind of remote?
 		local aheadN="$(git rev-list @{u}.. | wc -l)"
 		local behindN="$(git rev-list ..@{u} | wc -l)"
-		[ "$aheadN" -ne "0" ] && marks+=" $POWERLINE_SYMBOL_COMMITS_AHEAD$aheadN"
-		[ "$behindN" -ne "0" ] && marks+=" $POWERLINE_SYMBOL_COMMITS_BEHIND$behindN"
+		[ "$aheadN" -ne "0" ] \
+			&& status+=" $POWERLINE_SYMBOL_COMMITS_AHEAD$aheadN"
+		[ "$behindN" -ne "0" ] \
+			&& status+=" $POWERLINE_SYMBOL_COMMITS_BEHIND$behindN"
 
-		# print the git branch segment without a trailing newline
-		printf " $POWERLINE_SYMBOL_BRANCH$branch$marks "
+		echo -n "$POWERLINE_BG_BLUE$POWERLINE_FG_BASE3 $status "
 	}
 
 
@@ -210,17 +233,10 @@ __powerline() {
 	# Prompt building
 
 	ps1() {
-		# Check the exit code of the previous command and display different
-		# colors in the prompt accordingly.
-		if [ $? -eq 0 ]; then
-			local BG_EXIT="$POWERLINE_BG_GREEN"
-		else
-			local BG_EXIT="$POWERLINE_BG_RED"
-		fi
+		local status=$?
 
-		PS1="$POWERLINE_BG_BASE1$POWERLINE_FG_BASE3 \w "
-		PS1+="$POWERLINE_BG_BLUE$POWERLINE_FG_BASE3$(__git_info)"
-		PS1+="$BG_EXIT$POWERLINE_FG_BASE3 $PS_SYMBOL $POWERLINE_TERM_RESET_RENDITION "
+		PS1="$(__segment_pwd)$(__segment_git)$(__segment_prompt_os $status)"
+		PS1+="$POWERLINE_TERM_RESET_RENDITION "
 	}
 
 	PROMPT_COMMAND=ps1
