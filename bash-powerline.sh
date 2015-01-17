@@ -231,6 +231,19 @@ __powerline() {
 		echo -n "$bg_exit$POWERLINE_FG_BASE3 $ps_symbol "
 	}
 
+	## __segment_prompt_user
+	# Prints the standard Bash prompt character.
+	#
+	# Prints `#` for `root` and `$` for the other users.
+	__segment_prompt_user() {
+		if [[ ${EUID} == 0 ]] ; then
+			echo -n "$POWERLINE_BG_ORANGE$POWERLINE_FG_BASE3"
+		else
+			echo -n "$POWERLINE_BG_GREEN$POWERLINE_FG_BASE3"
+		fi
+		echo -n ' \$ '
+	}
+
 	## __segment_pwd
 	# Prints the current working directory.
 	__segment_pwd() {
@@ -271,7 +284,7 @@ __powerline() {
 		local status=$?
 
 		PS1="$(__segment_failure $status)$(__segment_chroot)$(__segment_user)"
-		PS1+="$(__segment_pwd)$(__segment_git)$(__segment_prompt_os $status)"
+		PS1+="$(__segment_pwd)$(__segment_git)$(__segment_prompt_user)"
 		PS1+="$POWERLINE_TERM_RESET_RENDITION "
 	}
 
