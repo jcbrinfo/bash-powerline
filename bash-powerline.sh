@@ -31,6 +31,7 @@ __powerline() {
 	readonly POWERLINE_SYMBOL_COMMITS_AHEAD='⇡'
 	readonly POWERLINE_SYMBOL_COMMITS_BEHIND='⇣'
 	readonly POWERLINE_SYMBOL_CHROOT='⦿ '
+	readonly POWERLINE_SYMBOL_FAILURE='!'
 
 
 	############################################################################
@@ -172,6 +173,18 @@ __powerline() {
 	############################################################################
 	# Segments
 
+	## __segment_failure [exit_status]
+	# Prints the exit status code of the last run command if that command has
+	# failed.
+	#
+	# @param exit_status The exit status code of the last run command.
+	__segment_failure() {
+		[ "$1" -ne "0" ] \
+			&& echo -n "$POWERLINE_BG_RED$POWERLINE_FG_BASE3" \
+				"$POWERLINE_SYMBOL_FAILURE$1 "
+	}
+
+
 	## __segment_chroot
 	# Prints the content of the `debian_chroot` variable.
 	#
@@ -193,12 +206,12 @@ __powerline() {
 		fi
 	}
 
-	## __segment_prompt_os [status_code]
+	## __segment_prompt_os [exit_status]
 	# Prints a different symbol depending on the operating system.
 	#
 	# Use a different background color if the last run command failed.
 	#
-	# @param status_code The status code of the last run command.
+	# @param exit_status The exit status code of the last run command.
 	__segment_prompt_os() {
 		case "$(uname)" in
 			Darwin)
@@ -210,7 +223,7 @@ __powerline() {
 			*)
 				local ps_symbol=$POWERLINE_SYMBOL_OS_OTHER
 		esac
-		if [ $1 -eq 0 ]; then
+		if [ "$1" -eq "0" ]; then
 			local bg_exit="$POWERLINE_BG_GREEN"
 		else
 			local bg_exit="$POWERLINE_BG_RED"
@@ -257,7 +270,7 @@ __powerline() {
 	ps1() {
 		local status=$?
 
-		PS1="$(__segment_chroot)$(__segment_user)"
+		PS1="$(__segment_failure $status)$(__segment_chroot)$(__segment_user)"
 		PS1+="$(__segment_pwd)$(__segment_git)$(__segment_prompt_os $status)"
 		PS1+="$POWERLINE_TERM_RESET_RENDITION "
 	}
