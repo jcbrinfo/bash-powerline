@@ -150,7 +150,19 @@ __powerline() {
 	#readonly POWERLINE_BG_GREEN -> See ANSI.
 
 
+	############################################################################
+	# Other escape codes
+
+	# Used at the end of the prompt to ensure that all graphic attributes are
+	# reset.
+	#
+	# EL (“Erase in Line”) is required to clear the background when the prompt
+	# is line-wrapped.
 	readonly POWERLINE_TERM_RESET_RENDITION="\[$(tput sgr0)$(tput el)\]"
+
+
+	############################################################################
+	# Segments
 
 	# what OS?
 	case "$(uname)" in
@@ -185,6 +197,10 @@ __powerline() {
 		# print the git branch segment without a trailing newline
 		printf " $GIT_BRANCH_SYMBOL$branch$marks "
 	}
+
+
+	############################################################################
+	# Prompt building
 
 	ps1() {
 		# Check the exit code of the previous command and display different
