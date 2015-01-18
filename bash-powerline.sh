@@ -367,11 +367,59 @@ __powerline() {
 		echo -n "$look"'\$'
 	}
 
-	## __segment_pwd
+	## __segment_pwd [$shortening]
 	# Prints the current working directory.
+	#
+	# @param $shortening Specifies how to shorten the path when the user is not
+	# `root`.
+	#
+	# Available options:
+	#
+	# * `w` (default): Do not shorten the path.
+	#
+	# * `W`: Use the basename.
+	#
+	# * A decimal number: When the path is longer than the specified number,
+	#   truncate the left of the path and put ellipsis(`…`). The only exception
+	#   to this rule is when the basename is longer than the limit (minus 2).
+	#   In this case, the basename is fully printed.
+	#
+	#   Note: The specified number **must** be greater than 2.
+	#
+	# In all the cases, the home directory’s path is replaced by `~`.
 	__segment_pwd() {
+		local pwd="$PWD"
+		local i="${#HOME}"
+
+		# 1. $HOME -> ~
+		if [ "${pwd:0:i}" == "$HOME" ]; then
+			if [ "${#pwd}" == "$i" ]; then
+				pwd='~'
+			elif [ "${pwd:i:1}" == '/' ]; then
+				pwd='~'"${pwd:i}"
+			fi
+		fi
+
+		# 2. $shortening
+		if [[ ${EUID} != 0 ]] && [ -n "$1" ] && [ "$1" != 'w' ] ; then
+			local length="${#pwd}"
+			local basename=$(basename "$pwd")
+			local basename_length="${#basename}"
+			if [ "$1" == 'W' ] || ((basename_lenght > $1 - 2)); then
+				pwd=basename
+			elif ((length > $1)); then
+				local left=$((length - basename_length - 1))
+				for ((i = left - 1; i >= length - $1 + 1; i--)); do
+					if [ "${pwd:i:1}" == '/' ]; then
+						left="$i"
+					fi
+				done
+				pwd="…${pwd:left}"
+			fi
+		fi
+
 		__end_previous_segment "$POWERLINE_SBAF_PWD"
-		echo -n "$POWERLINE_LOOK_PWD\w"
+		echo -n "$POWERLINE_LOOK_PWD$pwd"
 	}
 
 	## __segment_git
@@ -418,7 +466,7 @@ __powerline() {
 		PS1+="$(__segment_failure "$status")"
 		PS1+="$(__segment_chroot)"
 		PS1+="$(__segment_user)"
-		PS1+="$(__segment_pwd)"
+		PS1+="$(__segment_pwd 32)"
 		PS1+="$(__segment_git)"
 		PS1+="$(__segment_prompt_user)"
 
