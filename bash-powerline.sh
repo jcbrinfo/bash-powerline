@@ -287,7 +287,7 @@ __powerline() {
 	#
 	# @param exit_status The exit status code of the last run command.
 	__segment_failure() {
-		[ "$1" -ne "0" ] \
+		[ "$1" != "0" ] \
 			&& __end_previous_segment "$POWERLINE_SBAF_FAILURE" \
 			&& echo -n "$POWERLINE_LOOK_FAILURE$POWERLINE_SYMBOL_FAILURE$1"
 	}
@@ -338,7 +338,7 @@ __powerline() {
 		esac
 		local look="$POWERLINE_LOOK_PROMPT_OS"
 		local sbaf="$POWERLINE_SBAF_PROMPT_OS"
-		if [ "$1" -eq "0" ]; then
+		if [ "$1" == "0" ] || [ -z "$1" ]; then
 			look+="$POWERLINE_LOOK_PROMPT_OS_OK"
 			sbaf+="$POWERLINE_SBAF_PROMPT_OS_OK"
 		else
@@ -440,9 +440,9 @@ __powerline() {
 		# How many commits local branch is ahead/behind of remote?
 		local aheadN="$(git rev-list @{u}.. | wc -l)"
 		local behindN="$(git rev-list ..@{u} | wc -l)"
-		[ "$aheadN" -ne "0" ] \
+		[ "$aheadN" != "0" ] \
 			&& status+=" $POWERLINE_SYMBOL_COMMITS_AHEAD$aheadN"
-		[ "$behindN" -ne "0" ] \
+		[ "$behindN" != "0" ] \
 			&& status+=" $POWERLINE_SYMBOL_COMMITS_BEHIND$behindN"
 
 		__end_previous_segment "$POWERLINE_SBAF_GIT"
