@@ -42,6 +42,18 @@ __powerline() {
 	# * `'█▒ '`
 	readonly POWERLINE_SYMBOL_SEGMENT_END='█▚ '
 
+	# The character that separates path components.
+	#
+	# Examples:
+	#
+	# * `'/'`: Uses the original separator.
+	# * `'〉'`, `'❭'`, `'❯'` or `'❱'`: Equivalent to the original Powerline’s
+	#   symbol, but using standard Unicode characters.
+	# * `''`: The original Powerline style. As the orignal Powerline, this
+	#   require a patched font. See
+	# <https://powerline.readthedocs.org/en/latest/installation.html#fonts-installation>.
+	readonly POWERLINE_SYMBOL_PATH_SEPARATOR='〉'
+
 	readonly POWERLINE_SYMBOL_OS_DARWIN=''
 	readonly POWERLINE_SYMBOL_OS_LINUX='$'
 	readonly POWERLINE_SYMBOL_OS_OTHER='%'
@@ -416,6 +428,13 @@ __powerline() {
 				done
 				pwd="…${pwd:left}"
 			fi
+		fi
+
+		# 3. $POWERLINE_SYMBOL_PATH_SEPARATOR
+		# Replace all slashes, except the one at the start of the string (if any).
+		if [ -n "$pwd" ]; then
+			local substr="${pwd:1}"
+			pwd="${pwd:0:1}${substr//'/'/$POWERLINE_SYMBOL_PATH_SEPARATOR}"
 		fi
 
 		__end_previous_segment "$POWERLINE_SBAF_PWD"
