@@ -9,17 +9,20 @@ that includes many portability fixes and improvements.
 
 ## Features
 
-* Git branch: display current git branch name, or short SHA1 hash when the head
-  is detached
-* Git branch: display "+" symbol when current branch is changed but uncommited
-* Git branch: display "⇡" symbol and the difference in the number of commits when the current branch is ahead of remote
-* Git branch: display "⇣" symbol and the difference in the number of commits when the current branch is behind of remote
+* Git status
+	* Displays current git branch name, or short SHA1 hash when the head is
+	  detached
+	* Displays the `+` symbol when current branch has uncommited changes
+	* Displays the `⇡` symbol and the difference in the number of commits when
+	  the current branch is ahead of the remote
+	* Displays the `⇣` symbol and the difference in the number of commits when
+	  the current branch is behind of the remote
 * Status code for the previously failed command
 * Fast execution (no noticable delay)
 * No need for patched fonts
-* More portable than the original `bash-powerline` script : Works on 16-colors
+* More portable than the original `bash-powerline` script: Works on 16-colors
   terminals and does not rely on particular language settings.
-* Highly customizable.
+* Highly customizable
 
 
 ## Installation
@@ -34,12 +37,12 @@ And source it in your `.bashrc`
 
 For best result, use [Solarized
 colorscheme](https://github.com/altercation/solarized) for your terminal
-emulator. Or hack your own colorscheme by modifying the script. It's really
+emulator. Or hack your own color scheme by modifying the script. It's really
 easy.
 
 Note: Some colors may not appear as expected. In order to fix this, change the
-`POWERLINE_TERM_COLOR_ENCODING` constant of your `bash-powerline.sh` file. For
-details, see the comments in the script.
+value of the `POWERLINE_TERM_COLOR_ENCODING` constant of your
+`bash-powerline.sh` file. For details, see the comments in the script.
 
 
 ## Why?
