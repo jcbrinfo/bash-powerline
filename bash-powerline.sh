@@ -31,11 +31,11 @@ __powerline() {
 	############################################################################
 	# Symbols
 
-	# The character at the end of a segment.
+	# The string to display between two segments.
 	#
 	# Examples:
 	#
-	# * `'█ '`: “boxy” style
+	# * `'█ '`: “Boxy” style
 	# * `' '`: The original Powerline style. As the orignal Powerline, this
 	#   require a patched font. See
 	# <https://powerline.readthedocs.org/en/latest/installation.html#fonts-installation>.
