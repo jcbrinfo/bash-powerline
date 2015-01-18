@@ -30,15 +30,19 @@ __powerline() {
 
 	############################################################################
 	# Symbols
+	#
+	# Symbols from original Powerline, requires a patched font. See
+	# <https://powerline.readthedocs.org/en/latest/installation.html#fonts-installation>.
+	#
+	# By default, except for `$POWERLINE_SYMBOL_OS_DARWIN`, only standard
+	# Unicode characters are used.
 
 	# The string to display between two segments.
 	#
 	# Examples:
 	#
 	# * `'█ '`: “Boxy” style
-	# * `' '`: The original Powerline style. As the orignal Powerline, this
-	#   require a patched font. See
-	# <https://powerline.readthedocs.org/en/latest/installation.html#fonts-installation>.
+	# * `' '`: The original Powerline style.
 	# * `'█▒ '`
 	readonly POWERLINE_SYMBOL_SEGMENT_END='█▚ '
 
@@ -49,19 +53,37 @@ __powerline() {
 	# * `'/'`: Uses the original separator.
 	# * `'〉'`, `'❭'`, `'❯'` or `'❱'`: Equivalent to the original Powerline’s
 	#   symbol, but using standard Unicode characters.
-	# * `''`: The original Powerline style. As the orignal Powerline, this
-	#   require a patched font. See
-	# <https://powerline.readthedocs.org/en/latest/installation.html#fonts-installation>.
+	# * `''`: The original Powerline style.
 	readonly POWERLINE_SYMBOL_PATH_SEPARATOR='〉'
 
+	# Symbol for the Mac OS X prompt (`__segment_prompt_os`).
 	readonly POWERLINE_SYMBOL_OS_DARWIN=''
+
+	# Symbol for the Linux prompt (`__segment_prompt_os`).
 	readonly POWERLINE_SYMBOL_OS_LINUX='$'
+
+	# Default symbol for the platform-dependent prompt (`__segment_prompt_os`).
 	readonly POWERLINE_SYMBOL_OS_OTHER='%'
+
+	# String to display before the branch name (SCMs).
+	#
+	# Use `' '` for the original Powerline’s icon.
 	readonly POWERLINE_SYMBOL_BRANCH='⑂ '
+
+	# String to display for workspaces with uncommited changes (SCMs).
 	readonly POWERLINE_SYMBOL_DIRTY='+'
+
+	# String to display before the number of commit ahead (SCMs).
 	readonly POWERLINE_SYMBOL_COMMITS_AHEAD='⇡'
+
+	# String to display before the number of commit behind (SCMs).
 	readonly POWERLINE_SYMBOL_COMMITS_BEHIND='⇣'
+
+	# String to display before the name of the chroot environnement (SCMs).
 	readonly POWERLINE_SYMBOL_CHROOT='⦿ '
+
+	# String to display before the exit status in case of failure
+	# (`__segment_failure`).
 	readonly POWERLINE_SYMBOL_FAILURE='!'
 
 
