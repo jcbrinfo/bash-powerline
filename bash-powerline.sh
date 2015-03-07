@@ -476,8 +476,8 @@ __powerline() {
 		[ -n "$(git status --porcelain)" ] && status+=" $POWERLINE_SYMBOL_DIRTY"
 
 		# How many commits local branch is ahead/behind of remote?
-		local aheadN="$(git rev-list @{u}.. | wc -l)"
-		local behindN="$(git rev-list ..@{u} | wc -l)"
+		local aheadN="$(git rev-list @{u}.. 2>/dev/null | wc -l)"
+		local behindN="$(git rev-list ..@{u} 2>/dev/null | wc -l)"
 		[ "$aheadN" != "0" ] \
 			&& status+=" $POWERLINE_SYMBOL_COMMITS_AHEAD$aheadN"
 		[ "$behindN" != "0" ] \
